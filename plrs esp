@@ -1,0 +1,5 @@
+plrs = game:GetService("Players")
+
+for _, plrs in pairs(plrs) do
+    print(plrs)
+end
