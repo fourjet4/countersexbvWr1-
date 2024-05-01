@@ -1,5 +1,39 @@
 plrs = game:GetService("Players")
+plrLcal = game:GetService("Players").LocalPlayer
 
-for _, plrs in pairs(plrs) do
-    print(plrs)
+function plrCharcGet(plr)
+    local inputplr = plr.Character or nil
+
+    if inputplr then
+        if inputplr:FindFirstChild('HumanoidRootPart') and inputplr:FindFirstChild('Humanoid') and inputplr:FindFirstChild('Head') then
+            return inputplr
+        end
+    end
 end
+
+local function addHightLight(char, Transparency)
+    local highlight = Instance.new("Highlight")
+
+    highlight.OutlineTransparency = Transparency
+    highlight.Parent = char
+    
+    char.AncestryChanged:Connect(function()
+        highlight:Destroy()
+        print("plr esp - destroying: "..tostring(char))
+    end)
+end
+
+for _, plr in pairs(plrs:GetPlayers()) do
+    if plr ~= plrLcal then
+        if plrCharcGet(plr) ~= nil then
+            addHightLight(plrCharcGet(plr), 1)
+        end
+        
+        plr.CharacterAdded:Connect(addHightLight)
+    end
+end
+
+plrs.PlayerAdded:Connect(function(plr)
+    print(plr.Name .. " joined the game!")
+    plr.CharacterAdded:Connect(addHightLight)
+end)
