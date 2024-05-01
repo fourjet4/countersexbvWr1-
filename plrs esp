@@ -29,11 +29,15 @@ for _, plr in pairs(plrs:GetPlayers()) do
             addHightLight(plrCharcGet(plr), 1)
         end
         
-        plr.CharacterAdded:Connect(addHightLight)
+        plr.CharacterAdded:Connect(function(plrCharc)
+            addHightLight(plrCharc, 1)
+        end)
     end
 end
 
 plrs.PlayerAdded:Connect(function(plr)
     print(plr.Name .. " joined the game!")
-    plr.CharacterAdded:Connect(addHightLight)
+    plr.CharacterAdded:Connect(function(plrCharc)
+        addHightLight(plrCharc, 1)
+    end)
 end)
