@@ -1,8 +1,9 @@
 plrs = game:GetService("Players")
 plrLcal = game:GetService("Players").LocalPlayer
+nametags = plrLcal.PlayerGui.Nametags
 
 function plrCharcGet(plr)
-    local inputplr = plr.Character or nil
+    local inputplr = plr.Character or plr or nil
 
     if inputplr then
         if inputplr:FindFirstChild('HumanoidRootPart') and inputplr:FindFirstChild('Humanoid') and inputplr:FindFirstChild('Head') then
@@ -11,33 +12,62 @@ function plrCharcGet(plr)
     end
 end
 
-local function addHightLight(char, Transparency)
+local function addHightLight(char, Transparency, color)
     local highlight = Instance.new("Highlight")
 
+    highlight.FillColor = color
     highlight.OutlineTransparency = Transparency
     highlight.Parent = char
     
     char.AncestryChanged:Connect(function()
         highlight:Destroy()
-        print("plr esp - destroying: "..tostring(char))
     end)
 end
 
 for _, plr in pairs(plrs:GetPlayers()) do
-    if plr ~= plrLcal then
-        if plrCharcGet(plr) ~= nil then
-            addHightLight(plrCharcGet(plr), 1)
+    if plrCharcGet(plr) then
+        local plrColor = string.format(nametags[plr.Name].Health.TextColor3:ToHex())
+        if plrColor == "f5cd30" then
+            print(tostring(plr).." - ct")
+            addHightLight(plrCharcGet(plr), 1, Color3.fromRGB(245, 205, 48))
+                        
+        elseif plrColor == "0d69ac" then
+            print(tostring(plr).." - t")
+            addHightLight(plrCharcGet(plr), 1, Color3.fromRGB(0, 255, 0))
         end
-        
-        plr.CharacterAdded:Connect(function(plrCharc)
-            addHightLight(plrCharc, 1)
-        end)
     end
 end
 
-plrs.PlayerAdded:Connect(function(plr)
-    print(plr.Name .. " joined the game!")
+for _, plr in pairs(plrs:GetPlayers()) do
     plr.CharacterAdded:Connect(function(plrCharc)
-        addHightLight(plrCharc, 1)
+        wait(2)
+        local plrColor = string.format(nametags[plrCharc.Name].Health.TextColor3:ToHex())
+
+        if plrColor == "f5cd30" then
+            print(tostring(plrCharc).." - ct")
+            addHightLight(plrCharc, 1, Color3.fromRGB(245, 205, 48))
+                    
+        elseif plrColor == "0d69ac" then
+            print(tostring(plrCharc).." - t")
+            addHightLight(plrCharc, 1, Color3.fromRGB(0, 255, 0))
+        end
+
+    end)
+end
+
+plrs.PlayerAdded:Connect(function(plr)
+    plr.CharacterAdded:Connect(function(plrCharc)
+        wait(2)
+        local plrColor = string.format(nametags[plrCharc.Name].Health.TextColor3:ToHex())
+    
+        if plrColor == "f5cd30" then
+            print(tostring(plrCharc).." - ct")
+            addHightLight(plrCharc, 1, Color3.fromRGB(245, 205, 48))
+                        
+        elseif plrColor == "0d69ac" then
+            print(tostring(plrCharc).." - t")
+            addHightLight(plrCharc, 1, Color3.fromRGB(0, 255, 0))
+        end
+    
     end)
 end)
