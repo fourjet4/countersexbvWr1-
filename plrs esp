@@ -1,73 +1,221 @@
 plrs = game:GetService("Players")
 plrLcal = game:GetService("Players").LocalPlayer
-nametags = plrLcal.PlayerGui.Nametags
 
-function plrCharcGet(plr)
-    local inputplr = plr.Character or plr or nil
+local TeamColorT = Color3.fromRGB(255, 220, 0)
+local TeamColorCT = Color3.fromRGB(28, 177, 230)
 
-    if inputplr then
-        if inputplr:FindFirstChild('HumanoidRootPart') and inputplr:FindFirstChild('Humanoid') and inputplr:FindFirstChild('Head') then
-            return inputplr
-        end
+function plrCharcGet(inputplr)
+
+    local inputplr1 = plrs:FindFirstChild(inputplr.Name) or inputplr
+
+    return inputplr1.Character
+
+end
+
+function plrCharRootGet(inputplr, inputplrCharcBoolean)
+
+    local inputplr1 = plrs:FindFirstChild(inputplr) or inputplr
+
+    if not inputplrCharcBoolean then
+
+        local character = plrCharcGet(inputplr1)
+
+        return character and
+        character:FindFirstChild('Humanoid') and
+        character:FindFirstChild('HumanoidRootPart') and
+        character:FindFirstChild('Head') and
+        character:FindFirstChild('UpperTorso') and
+        character:FindFirstChild('LowerTorso')
+
+    else
+
+        return inputplr1:FindFirstChild('Humanoid') and
+        inputplr1:FindFirstChild('HumanoidRootPart') and
+        inputplr1:FindFirstChild('Head') and
+        inputplr1:FindFirstChild('UpperTorso') and
+        inputplr1:FindFirstChild('LowerTorso')
+
     end
+
+end
+
+local function addText(char, Name, height)
+
+    if not char then
+
+        return
+
+    end
+
+    local billboardGui = Instance.new("BillboardGui")
+    local textLabel = Instance.new("TextLabel")
+
+    billboardGui.Parent = char
+    billboardGui.AlwaysOnTop = true
+    billboardGui.Size = UDim2.new(0, 35, 0, 35)
+    billboardGui.StudsOffset = Vector3.new(0, height, 0)
+
+    textLabel.Parent = billboardGui
+    textLabel.BackgroundTransparency = 1
+    textLabel.Size = UDim2.new(1, 0, 1, 0)
+    textLabel.TextColor3 = Color3.new(1, 1, 1)
+    textLabel.TextScaled = true
+    textLabel.Text = Name
+
+    char:WaitForChild("HumanoidRootPart").AncestryChanged:Connect(function()
+    
+        billboardGui:Destroy()
+        print(tostring(char.Name).." billboardGui Destroy - AncestryChanged")
+
+    end)
+
+    local connection
+    connection = plrLcal.Status.Team:GetPropertyChangedSignal("Value"):Connect(function()
+
+        if char then
+        
+            if plrs[char.Name].Status.Team.Value == plrLcal.Status.Team.Value then
+                
+                billboardGui:Destroy()
+                print(tostring(plr.Name).." billboardGui Destroy - plrLcal.Status.Team")
+
+                connection:Disconnect()
+                
+            end
+
+        end
+
+    end)
+
 end
 
 local function addHightLight(char, Transparency, color)
+
+    if not char then
+
+        return
+
+    end
+
     local highlight = Instance.new("Highlight")
 
     highlight.FillColor = color
     highlight.OutlineTransparency = Transparency
     highlight.Parent = char
     
-    char.AncestryChanged:Connect(function()
+    char:WaitForChild("HumanoidRootPart").AncestryChanged:Connect(function()
+
         highlight:Destroy()
+        print(tostring(char.Name).." highlight Destroy - AncestryChanged")
+
     end)
+
 end
 
-for _, plr in pairs(plrs:GetPlayers()) do
-    if plrCharcGet(plr) then
-        local plrColor = string.format(nametags[plr.Name].Health.TextColor3:ToHex())
-        if plrColor == "f5cd30" then
-            print(tostring(plr).." - ct")
-            addHightLight(plrCharcGet(plr), 1, Color3.fromRGB(245, 205, 48))
-                        
-        elseif plrColor == "0d69ac" then
-            print(tostring(plr).." - t")
-            addHightLight(plrCharcGet(plr), 1, Color3.fromRGB(0, 255, 0))
+local function teamChecker(inputplr)
+
+    local plr = plrs:FindFirstChild(inputplr.Name)
+    local plrCharc = plrCharcGet(plr)
+    local plrTeam = plr.Status.Team.Value
+
+    if plrTeam == "T" then
+
+        if plrTeam ~= plrLcal.Status.Team.Value then
+            
+            addText(plrCharc, plrCharc.Name, 3.67)
+            print(tostring(plrCharc.Name).." Text add")
+
         end
+
+        addHightLight(plrCharc, 1, TeamColorT)
+        print(tostring(plrCharc.Name).." highlight add - you T")
+
+    elseif plrTeam == "CT" then
+
+        if plrTeam ~= plrLcal.Status.Team.Value then
+            
+            addText(plrCharc, plrCharc.Name, 3.67)
+            print(tostring(plrCharc.Name).." Text add")
+
+        end
+
+        addHightLight(plrCharc, 1, TeamColorCT)
+        print(tostring(plrCharc.Name).." highlight add - you T")
+
+    elseif plrTeam == "Spectator" then
+
+        --///////////
+
     end
+
 end
 
-for _, plr in pairs(plrs:GetPlayers()) do
-    plr.CharacterAdded:Connect(function(plrCharc)
-        wait(2)
-        local plrColor = string.format(nametags[plrCharc.Name].Health.TextColor3:ToHex())
+local function Update_plrLcalTeamChecker()
 
-        if plrColor == "f5cd30" then
-            print(tostring(plrCharc).." - ct")
-            addHightLight(plrCharc, 1, Color3.fromRGB(245, 205, 48))
-                    
-        elseif plrColor == "0d69ac" then
-            print(tostring(plrCharc).." - t")
-            addHightLight(plrCharc, 1, Color3.fromRGB(0, 255, 0))
+    plrLcal.Status.Team:GetPropertyChangedSignal("Value"):Connect(function()
+        
+        for _, plr in pairs(plrs:GetPlayers()) do
+
+            if plr ~= plrLcal then
+        
+                if plrCharRootGet(plr, false) then
+
+                    if plr.Status.Team.Value ~= plrLcal.Status.Team.Value then
+
+                        if plr.Status.Team.Value ~= "Spectator" and plr.Character:FindFirstChild("Highlight") and not plr.Character:FindFirstChild("BillboardGui") then
+            
+                            print(tostring(plr.Name).." updated")
+                            teamChecker(plr)
+            
+                        end
+            
+                    end
+        
+                end
+        
+            end
+        
         end
 
     end)
+
+end
+
+local function plrOnCharacAdded(plrCharc)
+
+    print("char adeed")
+    teamChecker(plrCharc)
+
+end
+
+for _, plr in pairs(plrs:GetPlayers()) do
+
+    if plr ~= plrLcal then
+
+        if plrCharRootGet(plr, false) then
+
+            teamChecker(plr)
+
+        end
+
+        plr.CharacterAdded:Connect(function(plrCharc)
+
+            plrOnCharacAdded(plrCharc)
+
+        end)
+
+    end
+
 end
 
 plrs.PlayerAdded:Connect(function(plr)
+
     plr.CharacterAdded:Connect(function(plrCharc)
-        wait(2)
-        local plrColor = string.format(nametags[plrCharc.Name].Health.TextColor3:ToHex())
-    
-        if plrColor == "f5cd30" then
-            print(tostring(plrCharc).." - ct")
-            addHightLight(plrCharc, 1, Color3.fromRGB(245, 205, 48))
-                        
-        elseif plrColor == "0d69ac" then
-            print(tostring(plrCharc).." - t")
-            addHightLight(plrCharc, 1, Color3.fromRGB(0, 255, 0))
-        end
-    
+
+        plrOnCharacAdded(plrCharc)
+
     end)
+
 end)
+
+Update_plrLcalTeamChecker()
