@@ -65,7 +65,6 @@ local function addText(char, Name, height)
     char:WaitForChild("HumanoidRootPart").AncestryChanged:Connect(function()
     
         billboardGui:Destroy()
-        print(tostring(char.Name).." billboardGui Destroy - AncestryChanged")
 
     end)
 
@@ -77,7 +76,6 @@ local function addText(char, Name, height)
             if plrs[char.Name].Status.Team.Value == plrLcal.Status.Team.Value then
                 
                 billboardGui:Destroy()
-                print(tostring(plr.Name).." billboardGui Destroy - plrLcal.Status.Team")
 
                 connection:Disconnect()
                 
@@ -106,7 +104,6 @@ local function addHightLight(char, Transparency, color)
     char:WaitForChild("HumanoidRootPart").AncestryChanged:Connect(function()
 
         highlight:Destroy()
-        print(tostring(char.Name).." highlight Destroy - AncestryChanged")
 
     end)
 
@@ -123,24 +120,20 @@ local function teamChecker(inputplr)
         if plrTeam ~= plrLcal.Status.Team.Value then
             
             addText(plrCharc, plrCharc.Name, 3.67)
-            print(tostring(plrCharc.Name).." Text add")
 
         end
 
         addHightLight(plrCharc, 1, TeamColorT)
-        print(tostring(plrCharc.Name).." highlight add - you T")
 
     elseif plrTeam == "CT" then
 
         if plrTeam ~= plrLcal.Status.Team.Value then
             
             addText(plrCharc, plrCharc.Name, 3.67)
-            print(tostring(plrCharc.Name).." Text add")
 
         end
 
         addHightLight(plrCharc, 1, TeamColorCT)
-        print(tostring(plrCharc.Name).." highlight add - you T")
 
     elseif plrTeam == "Spectator" then
 
@@ -164,7 +157,6 @@ local function Update_plrLcalTeamChecker()
 
                         if plr.Status.Team.Value ~= "Spectator" and plr.Character:FindFirstChild("Highlight") and not plr.Character:FindFirstChild("BillboardGui") then
             
-                            print(tostring(plr.Name).." updated")
                             teamChecker(plr)
             
                         end
@@ -181,13 +173,6 @@ local function Update_plrLcalTeamChecker()
 
 end
 
-local function plrOnCharacAdded(plrCharc)
-
-    print("char adeed")
-    teamChecker(plrCharc)
-
-end
-
 for _, plr in pairs(plrs:GetPlayers()) do
 
     if plr ~= plrLcal then
@@ -200,7 +185,7 @@ for _, plr in pairs(plrs:GetPlayers()) do
 
         plr.CharacterAdded:Connect(function(plrCharc)
 
-            plrOnCharacAdded(plrCharc)
+            teamChecker(plrCharc)
 
         end)
 
@@ -212,7 +197,7 @@ plrs.PlayerAdded:Connect(function(plr)
 
     plr.CharacterAdded:Connect(function(plrCharc)
 
-        plrOnCharacAdded(plrCharc)
+        teamChecker(plrCharc)
 
     end)
 
